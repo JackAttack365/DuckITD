@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -33,6 +35,12 @@ public class Drivetrain extends SubSystem {
         left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        left.setDirection(DcMotorSimple.Direction.REVERSE);
+        right.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         motors[0]=(left);
         motors[1]=(right);
     }
@@ -42,38 +50,44 @@ public class Drivetrain extends SubSystem {
 
     }
 
+    public void fwd() {
+        left.setPower(0.8);
+        right.setPower(0.8);
+    }
+
+    public void stop() {
+        left.setPower(0);
+        right.setPower(0);
+    }
+
     public void forwards(int distance) throws InterruptedException {
         // To convert cm into motor position counter values
         final double DISTANCE_CONSTANT=2;
         // What power to use to drive the robot
-        final double DRIVE_POWER=0.8;
-        // What power to use to drive the robot
-        final double MIN_POWER=0.1;
+        final double DRIVE_POWER=0.6;
         // How long to pause before checking movement
         final int SLEEP_INTERVAL=10;
-        // Acceleration distance (in encoder clicks). 300mm in this case:
-        final double ACCEL_DIST=300.0*DISTANCE_CONSTANT;
 
 
         int targetPosition=(int)DISTANCE_CONSTANT*distance;
 
-        for(DcMotor motor : motors) {
-            // Stop and reset the motor counter
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            // Set the target position by converting the distance into motor
-            // position values
-            motor.setTargetPosition(targetPosition);
-            // Set the motor into the mode that uses the encoder to keep
-            // track of the position
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        }
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // Set the target position by converting the distance into motor
+        // position values
+        left.setTargetPosition(targetPosition);
+        right.setTargetPosition(targetPosition);
+        // Set the motor into the mode that uses the encoder to keep
+        // track of the position
+        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         config.telemetry.addData("motor1",left.getCurrentPosition());
         config.telemetry.update();
 
-        // Sleep a bit to make sure the motor report as "busy"
-        wait(SLEEP_INTERVAL);
+        Thread.sleep(SLEEP_INTERVAL);
+
         // Loop as long as either motor reports as busy
         boolean isBusy=false;
         do {
@@ -81,43 +95,23 @@ public class Drivetrain extends SubSystem {
             int currentPosition=left.getCurrentPosition();
             config.telemetry.addData("motor1", currentPosition);
 
-            // Determine the closest distance to either starting position
-            // or target. When close to start, we accelerate, when close to
-            // target, we decelerate. When we are far from both, the robot
-            // drives at DRIVE_POWER speed. To avoid not moving at all, the
-            // minimum speed is set to MIN_POWER. The distance over which to
-            // accerate or decelerate is ACCEL_DIST. All math is done in
-            // encoder "clicks", 300 mm is about 600 encoder clicks.
-            int lengthToTarget=Math.abs(targetPosition-currentPosition);
-            if (lengthToTarget>Math.abs(currentPosition)) {
-                lengthToTarget=Math.abs(currentPosition);
-            }
-
-            double power=(DRIVE_POWER-MIN_POWER)*(lengthToTarget/ACCEL_DIST)+MIN_POWER;
-            if(lengthToTarget>=ACCEL_DIST) {
-                power=DRIVE_POWER;
-            }
-
             for(DcMotor motor : motors) {
-                motor.setPower(power);
+                motor.setPower(DRIVE_POWER);
             }
-
-            // Sleep until next check
-            wait(SLEEP_INTERVAL);
+            Thread.sleep(SLEEP_INTERVAL);
             isBusy=false;
-            for(DcMotor motor : motors) {
-                if(motor.isBusy())isBusy=true;
-            }
+            if(left.isBusy())isBusy=true;
+            if(right.isBusy())isBusy=true;
+
         } while(isBusy);
 
-        for(DcMotor motor : motors) {
-            motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
+        left.setPower(0);
+        right.setPower(0);
+        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
     public void turn(int angle) throws InterruptedException {
         imu.resetYaw();
-        wait(50);
         double currentAngle=getAngle();
         int direction=0;
         double targetAngle=currentAngle+angle;

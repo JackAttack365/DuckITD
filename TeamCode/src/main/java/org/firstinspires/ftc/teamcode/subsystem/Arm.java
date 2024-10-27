@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.Config;
 
 public class Arm extends SubSystem {
-    DcMotor arm, lift;
+    public DcMotor arm;
+    DcMotor lift;
 
     public final double ARM_TICKS_PER_DEGREE = 19.7924893140647;
 
@@ -15,7 +16,7 @@ public class Arm extends SubSystem {
     public final double ARM_CLEAR_BARRIER         = 230 * ARM_TICKS_PER_DEGREE;
     public final double ARM_SCORE_SPECIMEN        = 160 * ARM_TICKS_PER_DEGREE;
     public final double ARM_SCORE_SAMPLE_IN_LOW   = 160 * ARM_TICKS_PER_DEGREE;
-    public final double ARM_SCORE_SAMPLE_IN_HIGH  = 200 * ARM_TICKS_PER_DEGREE;
+    public final double ARM_SCORE_SAMPLE_IN_HIGH  = 120 * ARM_TICKS_PER_DEGREE;
     public final double ARM_ATTACH_HANGING_HOOK   = 120 * ARM_TICKS_PER_DEGREE;
     public final double ARM_WINCH_ROBOT           = 15  * ARM_TICKS_PER_DEGREE;
 
@@ -34,6 +35,9 @@ public class Arm extends SubSystem {
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
@@ -44,14 +48,14 @@ public class Arm extends SubSystem {
     public void armToPos(double position) {
         arm.setTargetPosition((int) (position));
 
-        ((DcMotorEx) arm).setVelocity(2100);
+        arm.setPower(1);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void liftToPos(double position) {
         lift.setTargetPosition((int) (position));
 
-        ((DcMotorEx) lift).setVelocity(2100);
+        lift.setPower(1);
         lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
