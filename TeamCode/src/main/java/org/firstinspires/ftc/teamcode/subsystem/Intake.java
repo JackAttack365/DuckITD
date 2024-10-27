@@ -23,11 +23,17 @@ public class Intake extends SubSystem {
 
     @Override
     public void update() {
-
+        if (config.gamePad1.left_trigger >= 0.1) {
+            intakeBack();
+        } else if (config.gamePad1.right_trigger >= 0.1) {
+            intakeOn();
+        } else {
+            intakeOff();
+        }
     }
 
     public void intakeOn() {
-        intake.setPower(1);
+        intake.setPower(-1);
     }
 
     public void intakeOff() {

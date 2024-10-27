@@ -1,15 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Config;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Drivetrain;
 
 @Autonomous(name="LeftAuto")
 public class LeftAuto extends LinearOpMode {
-    Config     config = null;
+    Config config = null;
 
     Drivetrain drive = null;
     Arm        arm = null;

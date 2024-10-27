@@ -16,7 +16,7 @@ public class Arm extends SubSystem {
     public final double ARM_CLEAR_BARRIER         = 230 * ARM_TICKS_PER_DEGREE;
     public final double ARM_SCORE_SPECIMEN        = 160 * ARM_TICKS_PER_DEGREE;
     public final double ARM_SCORE_SAMPLE_IN_LOW   = 160 * ARM_TICKS_PER_DEGREE;
-    public final double ARM_SCORE_SAMPLE_IN_HIGH  = 120 * ARM_TICKS_PER_DEGREE;
+    public final double ARM_SCORE_SAMPLE_IN_HIGH  = 160 * ARM_TICKS_PER_DEGREE;
     public final double ARM_ATTACH_HANGING_HOOK   = 120 * ARM_TICKS_PER_DEGREE;
     public final double ARM_WINCH_ROBOT           = 15  * ARM_TICKS_PER_DEGREE;
 
@@ -38,10 +38,27 @@ public class Arm extends SubSystem {
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
     public void update() {
+        if (config.gamePad1.right_stick_y >= 0.1) {
+            lift.setPower(config.gamePad1.right_stick_y);
+        } else if (config.gamePad1.right_stick_y <= -0.1) {
+            lift.setPower(config.gamePad1.right_stick_y);
+        } else {
+            lift.setPower(0);
+        }
+
+        if (config.gamePad2.a) {
+            armToPos(ARM_COLLECT);
+        } else if (config.gamePad2.b) {
+            armToPos(ARM_CLEAR_BARRIER);
+        } else if (config.gamePad2.x) {
+            armToPos(ARM_SCORE_SAMPLE_IN_HIGH);
+        }
 
     }
 
